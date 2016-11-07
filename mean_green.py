@@ -2,40 +2,50 @@ import logging
 
 import requests
 from bs4 import BeautifulSoup
+from tabulate import tabulate
 
 gp_search_url = "https://secure.gpus.org/secure/testdb/search.php"
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
-def get_gp_canidates_by_filter(filter_year, deep_get=False):
 
-    canidates = None
+def get_gp_candidates_by_filter(filter_year):
 
-    canidate_request = requests.post(gp_search_url, {"filter_year": filter_year})
+    candidates = None
 
-    if canidate_request.status_code == 200:
-        canidates = []
-        soup = BeautifulSoup(canidate_request.text, 'html.parser')
+    candidate_request = requests.post(gp_search_url, {"filter_year": filter_year})
+
+    if candidate_request.status_code == 200:
+        candidates = {}
+        soup = BeautifulSoup(candidate_request.text, 'html.parser')
         for c in soup.body.table.table.table.findAll("tr")[2:]:
-            canidate = dict()
-            canidate["name"] = c.td.a.text
+            name = c.td.a.text
+            candidates[name] = dict()
             for detail in c.findAll("td")[1:][0].get_text("|").split("|"):
                 d = detail.split(":", 1)
-                canidate[d[0].strip()] = d[1].strip()
-            canidates.append(canidate)
+                candidates[name][d[0].strip()] = d[1].strip()
     else:
-        logging.error("Requests for canidates did not respond OK. Response code is <%{}>".format(
-            canidate_request.status_code))
+        logging.error("Requests for candidates did not respond OK. Response code is <{}>".format(
+            candidate_request.status_code))
 
-    return canidates
+    return candidates
 
 
-canidates_2015 = get_gp_canidates_by_filter(filter_year=2015)
-canidates_2016 = get_gp_canidates_by_filter(filter_year=2016)
+candidates_2015 = get_gp_candidates_by_filter(filter_year=2015)
+candidates_2016 = get_gp_candidates_by_filter(filter_year=2016)
 
-count_2016 = 0
-for canidate in canidates_2016:
-    if canidate['Elected'] != 'No':
-        count_2016 +=1
+states_2016 = map(lambda c: c['State'], candidates_2016.values())
+candidates_2016_by_state = [[x, states_2016.count(x)] for x in set(states_2016)]
 
-print count_2016
+offices_2016 = map(lambda c: c['Office'], candidates_2016.values())
+candidates_2016_by_offices = [[x, offices_2016.count(x)] for x in set(offices_2016)]
+
+candidates_2016_that_ran_in_2015 = list(set(candidates_2015.keys()) & set(candidates_2016.keys()))
+
+print tabulate(candidates_2016_by_offices, headers=['Office', 'Count'])
+print "\n"
+print tabulate(candidates_2016_by_state, headers=['State', 'Count'])
+print "\n"
+print tabulate(map(lambda c: [c], candidates_2016_that_ran_in_2015), headers=['Also ran in 2015'])
+
+
