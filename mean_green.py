@@ -42,10 +42,10 @@ candidates_2016_by_offices = [[x, offices_2016.count(x)] for x in set(offices_20
 
 candidates_2016_that_ran_in_2015 = list(set(candidates_2015.keys()) & set(candidates_2016.keys()))
 
-print tabulate(candidates_2016_by_offices, headers=['Office', 'Count'])
+print tabulate(candidates_2016_by_offices, headers=['Office', 'Count'], tablefmt="pipe")
 print "\n"
-print tabulate(candidates_2016_by_state, headers=['State', 'Count'])
+print tabulate(candidates_2016_by_state, headers=['State', 'Count'], tablefmt="pipe")
 print "\n"
-print tabulate(map(lambda c: [c], candidates_2016_that_ran_in_2015), headers=['Also ran in 2015'])
+print tabulate(map(lambda c: [c], candidates_2016_that_ran_in_2015), headers=['Also ran in 2015'], tablefmt="pipe")
 
 
