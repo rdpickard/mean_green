@@ -1,4 +1,5 @@
 import logging
+import datetime
 
 import requests
 from bs4 import BeautifulSoup
@@ -42,6 +43,10 @@ candidates_2016_by_offices = [[x, offices_2016.count(x)] for x in set(offices_20
 
 candidates_2016_that_ran_in_2015 = list(set(candidates_2015.keys()) & set(candidates_2016.keys()))
 
+print "# Analytics about the 2016 Green Party"
+print "## Run at {}".format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
+print "## Based on election database at [Green Party 2016 candidates](http://www.gp.org/2016_candidates)"
+print "\n"
 print tabulate(candidates_2016_by_offices, headers=['Office', 'Count'], tablefmt="pipe")
 print "\n"
 print tabulate(candidates_2016_by_state, headers=['State', 'Count'], tablefmt="pipe")
